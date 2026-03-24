@@ -44,9 +44,6 @@ Telegram → n8n → AI Processing → Lead Scoring → CRM (PostgreSQL) → Goo
 
 ---
 
-## 🎥 Demo Video
-
-👉 [Add your Loom video link here]
 
 ---
 
