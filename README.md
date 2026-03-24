@@ -39,7 +39,8 @@ Telegram → n8n → AI Processing → Lead Scoring → CRM (PostgreSQL) → Goo
 
 ## 📸 Workflow Screenshot
 
-![Workflow](./workflow.png)
+<img width="1792" height="724" alt="Lead Capture Automation" src="https://github.com/user-attachments/assets/ad290cc0-ba03-495a-8585-6074053b57df" />
+
 
 ---
 
@@ -116,4 +117,4 @@ Mohammed Afsal V P
 ## ⭐ Notes
 
 This project demonstrates practical AI + automation integration for real-world business use cases.
-<img width="1792" height="724" alt="Lead Capture Automation" src="https://github.com/user-attachments/assets/b2d752ae-a7d6-4565-bb5b-7f08b3205b57" />
+
