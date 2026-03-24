@@ -1,0 +1,150 @@
+{
+  "name": "AI Lead Qualification & CRM Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "user_name",
+              "value": "={{$json[\"message\"][\"from\"][\"first_name\"]}}"
+            },
+            {
+              "name": "username",
+              "value": "={{$json[\"message\"][\"from\"][\"username\"]}}"
+            },
+            {
+              "name": "user_question",
+              "value": "={{$json[\"message\"][\"text\"]}}"
+            },
+            {
+              "name": "chat_id",
+              "value": "={{$json[\"message\"][\"chat\"][\"id\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Extract User Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $json.user_question.toLowerCase();\nlet score = 'COLD';\nif(msg.includes('price') || msg.includes('buy') || msg.includes('automation') || msg.includes('service')) score = 'HOT';\nelse if(msg.includes('details') || msg.includes('information') || msg.includes('how')) score = 'WARM';\nreturn [{json:{...$json,lead_score:score}}];"
+      },
+      "name": "Lead Scoring",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "crm_contacts",
+        "columns": "user_name,username,user_question,lead_score"
+      },
+      "name": "Store Lead in CRM",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_SALES_TEAM_CHAT_ID",
+        "text": "={{`🚨 New Lead\\nName: ${$json.user_name}\\nQuestion: ${$json.user_question}\\nScore: ${$json.lead_score}`}}"
+      },
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.chat_id}}",
+        "text": "={{`Hi ${$json.user_name}, thanks for contacting us. Our team will review your request and get back to you shortly.`}}"
+      },
+      "name": "Auto Follow-up Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_GOOGLE_SHEET_ID",
+        "range": "Sheet1!A:D"
+      },
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract User Data": {
+      "main": [
+        [
+          {
+            "node": "Lead Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Scoring": {
+      "main": [
+        [
+          {
+            "node": "Store Lead in CRM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Sales Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Auto Follow-up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Follow-up Message": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
